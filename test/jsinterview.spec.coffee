@@ -8,6 +8,5 @@ chai.use require 'sinon-chai'
 
 describe 'jsinterview', ->
   it 'works', ->
-    actual = jsinterview 'World'
+    actual = jsinterview('World')
     expect(actual).to.eql 'Hello World'
-

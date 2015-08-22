@@ -7,6 +7,8 @@ mocha = require 'gulp-mocha'
 plumber = require 'gulp-plumber'
 batch = require('gulp-batch')
 
+swallowError = (error) -> error.end()
+
 gulp.on 'err', (e) ->
   gutil.beep()
   gutil.log e.err.stack
@@ -26,10 +28,10 @@ gulp.task 'test', ['coffee'], ->
         .pipe mocha reporter: 'spec', compilers: 'coffee:coffee-script'
         .pipe istanbul.writeReports() # Creating the reports after tests run
 
-gulp.task 'watch', ['test'], ->
+gulp.task 'watch', [], ->
   stuff_to_watch = ['./src/**/*.coffee', './src/**/*.js', './test/**/*.coffee', './test/**/*.js']
   gulp.watch(stuff_to_watch, batch( (events, done) ->
     gulp.start('test', done)
-  ))
+  )).on('error', swallowError)
 
-gulp.task 'default', ['coffee']
+gulp.task 'default', ['watch']

@@ -5,6 +5,7 @@ coffee = require 'gulp-coffee'
 istanbul = require 'gulp-istanbul'
 mocha = require 'gulp-mocha'
 plumber = require 'gulp-plumber'
+batch = require('gulp-batch')
 
 gulp.on 'err', (e) ->
   gutil.beep()
@@ -21,11 +22,14 @@ gulp.task 'test', ['coffee'], ->
     .pipe(istanbul()) # Covering files
     .pipe(istanbul.hookRequire()) # Overwrite require so it returns the covered files
     .on 'finish', ->
-      gulp.src(['test/**/*.spec.coffee'])
+      gulp.src(['test/**/*.spec.coffee', 'test/**/*.spec.js'])
         .pipe mocha reporter: 'spec', compilers: 'coffee:coffee-script'
         .pipe istanbul.writeReports() # Creating the reports after tests run
 
-gulp.task 'watch', ->
-  gulp.watch './src/**/*.coffee', ['coffee']
+gulp.task 'watch', ['test'], ->
+  stuff_to_watch = ['./src/**/*.coffee', './src/**/*.js', './test/**/*.coffee', './test/**/*.js']
+  gulp.watch(stuff_to_watch, batch( (events, done) ->
+    gulp.start('test', done)
+  ))
 
 gulp.task 'default', ['coffee']

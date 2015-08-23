@@ -13,14 +13,19 @@ gulp.on 'err', (e) ->
   gutil.beep()
   gutil.log e.err.stack
 
+gulp.task 'js', ->
+  gulp.src './src/**/*.js'
+  .pipe gulp.dest './lib/'
+
 gulp.task 'coffee', ->
   gulp.src './src/**/*.coffee'
     .pipe plumber() # Pevent pipe breaking caused by errors from gulp plugins
     .pipe coffee({bare: true})
     .pipe gulp.dest './lib/'
 
-gulp.task 'test', ['coffee'], ->
+gulp.task 'test', ['source'], ->
   gulp.src ['lib/**/*.js']
+    .pipe plumber()
     .pipe(istanbul()) # Covering files
     .pipe(istanbul.hookRequire()) # Overwrite require so it returns the covered files
     .on 'finish', ->
@@ -33,5 +38,7 @@ gulp.task 'watch', [], ->
   gulp.watch(stuff_to_watch, batch( (events, done) ->
     gulp.start('test', done)
   )).on('error', swallowError)
+
+gulp.task 'source', ['coffee', 'js']
 
 gulp.task 'default', ['watch']
